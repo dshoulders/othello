@@ -9,8 +9,33 @@ const SQUARE_SIZE = 100;
 const columns = ['a','b','c','d','e','f','g','h'];
 const rows = [1,2,3,4,5,6,7,8];
 
-function init ({ rootNode, database }) {
-    render(html`<${App} database=${database} />`, rootNode);
+function init ({ rootNode, firebase }) {
+
+    var provider = new firebase.auth.GoogleAuthProvider();
+
+firebase.auth()
+  .signInWithPopup(provider)
+  .then((result) => {
+    /** @type {firebase.auth.OAuthCredential} */
+    var credential = result.credential;
+
+    // This gives you a Google Access Token. You can use it to access the Google API.
+    var token = credential.accessToken;
+    // The signed-in user info.
+    var user = result.user;
+    
+    render(html`<${App} database=${firebase.database()} />`, rootNode);
+    
+  }).catch((error) => {
+    // Handle Errors here.
+    var errorCode = error.code;
+    var errorMessage = error.message;
+    // The email of the user's account used.
+    var email = error.email;
+    // The firebase.auth.AuthCredential type that was used.
+    var credential = error.credential;
+    // ...
+  });
 }
 
 function App ({ database }) {
