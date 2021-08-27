@@ -1,13 +1,7 @@
 {
     "players": {
-        "1": {
-            "name": "Elwood" 
-        },
-        "2": {
-            "name": "Dale" 
-        }
     },
-    "currentPlayer": 1,
+    "currentPlayer": 0,
     "board" : {
         "a1": 0,
         "a2": 0,
