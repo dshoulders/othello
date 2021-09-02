@@ -1,6 +1,5 @@
-import { createContext } from 'https://unpkg.com/preact@latest?module'
-import { useContext } from 'https://unpkg.com/preact@latest/hooks/dist/hooks.module.js?module'
-import { html } from '../../utils.js'
+import { useContext } from '../../hooks/lib.js'
+import { html, createContext } from '../../utils.js'
 
 const context = createContext(undefined)
 

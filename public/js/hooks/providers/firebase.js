@@ -1,6 +1,5 @@
-import { createContext } from 'https://unpkg.com/preact@latest?module'
-import { useContext } from 'https://unpkg.com/preact@latest/hooks/dist/hooks.module.js?module'
-import { html } from '../../utils.js'
+import { useContext, useEffect } from '../../hooks/lib.js'
+import { html, createContext } from '../../utils.js'
 
 const context = createContext(undefined)
 
@@ -16,4 +15,25 @@ const useFirebase = () => {
     return firebaseContext
 }
 
-export { firebaseProvider, useFirebase }
+const useDb = () => {
+    const firebaseContext = useContext(context)
+    if (firebaseContext === undefined) {
+        throw new Error('useDb must be used within a FirebaseProvider')
+    }
+    return firebaseContext.database()
+}
+
+const useRead = (path, callback) => {
+    const firebaseContext = useContext(context)
+    if (firebaseContext === undefined) {
+        throw new Error('useRead must be used within a FirebaseProvider')
+    }
+    useEffect(() => {
+        const ref = firebaseContext.database().ref(path)
+        ref.on('value', callback)
+
+        return () => ref.off('value', callback)
+    }, [path])
+}
+
+export { firebaseProvider, useFirebase, useDb, useRead }
