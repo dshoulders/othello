@@ -1,4 +1,4 @@
-import { html } from '../utils.js'
+import { html, reset } from '../utils.js'
 import { players } from './players.js'
 import { board } from './board.js'
 import { useDb, useRead } from '../hooks/providers/firebase.js'
@@ -10,13 +10,19 @@ export function app() {
 
     const showPlayButton =
         registeredPlayers.length === 2 && currentPlayerId === null
+    const showResetButton =
+        registeredPlayers.length === 2 && currentPlayerId !== null
 
     console.log('app')
 
     const db = useDb()
 
     function onPlayClick() {
-        db.ref('/currentPlayerId').set(registeredPlayers[0].id)
+        db.ref('/currentPlayerId').set(registeredPlayers[0].uid)
+    }
+
+    function onResetClick() {
+        reset()
     }
 
     useRead('/players', (snapshot) => {
@@ -40,6 +46,8 @@ export function app() {
             currentPlayerId=${currentPlayerId}
         />
         ${showPlayButton && html`<button onClick=${onPlayClick}>Play</button>`}
+        ${showResetButton &&
+        html`<button onClick=${onResetClick}>Reset</button>`}
         <${board}
             registeredPlayers=${registeredPlayers}
             currentPlayerId=${currentPlayerId}

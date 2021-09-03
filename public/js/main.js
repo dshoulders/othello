@@ -5,7 +5,6 @@ import { userProvider } from './hooks/providers/user.js'
 import { app } from './components/app.js'
 
 function init({ rootNode, firebase }) {
-    alert('ggg')
     signin(firebase)
         .then((result) => {
             /** @type {firebase.auth.OAuthCredential} */
@@ -15,8 +14,6 @@ function init({ rootNode, firebase }) {
             var token = credential.accessToken
             // The signed-in user info.
             var user = result.user
-
-            alert(user.email, user.displayName)
 
             // If there are less than 2 players add the current user as a player
             const playersRef = firebase.database().ref('/players')

@@ -15,7 +15,7 @@ export function board({ registeredPlayers, currentPlayerId }) {
 
     const firebase = useFirebase()
 
-    function onClick({ target: { squareId } }) {
+    function onClick({ target: { id: squareId } }) {
         if (user.uid === currentPlayerId) {
             const playerIndex = registeredPlayers.findIndex(
                 (p) => p.uid === user.uid
