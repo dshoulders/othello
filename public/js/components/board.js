@@ -1,6 +1,6 @@
 import { useEffect, useState } from '../hooks/lib.js'
 import { useFirebase, useRead } from '../hooks/providers/firebase.js'
-import { html } from '../utils.js'
+import { html, isValidCoord } from '../utils.js'
 import { disc } from './disc.js'
 import { square } from './square.js'
 
@@ -15,7 +15,9 @@ export function board({ registeredPlayers, currentPlayerId }) {
 
     const firebase = useFirebase()
 
-    function onClick({ target: { id: squareId } }) {
+    async function onClick({ target: { id: coord } }) {
+        const boardRef = firebase.database().ref('/board')
+
         if (user.uid === currentPlayerId) {
             const playerIndex = registeredPlayers.findIndex(
                 (p) => p.uid === user.uid
@@ -24,8 +26,12 @@ export function board({ registeredPlayers, currentPlayerId }) {
             const otherPlayerIndex = playerIndex === 0 ? 1 : 0
             const otherPlayerId = registeredPlayers[otherPlayerIndex].uid
 
-            firebase.database().ref(`/board/${squareId}`).set(playerIndex)
-            firebase.database().ref('/currentPlayerId').set(otherPlayerId)
+            const boardSnapshot = await boardRef.get()
+
+            if (isValidCoord(boardSnapshot.val(), playerIndex, coord)) {
+                boardRef.child(coord).set(playerIndex)
+                firebase.database().ref('/currentPlayerId').set(otherPlayerId)
+            }
         }
     }
 
