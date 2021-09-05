@@ -25,41 +25,73 @@ export function setBoard(board) {
     window.firebase.database().ref('/board').set(board)
 }
 
-function getCoord(col, row) {
-    const colCoord = columns[col]
-    const rowCoord = rows[row]
+function getCoord(colIndex, rowIndex) {
+    const col = columns[colIndex]
+    const row = rows[rowIndex]
 
-    if (!colCoord || !rowCoord) {
+    if (!col || !row) {
         return null
     }
 
-    return `${colCoord}${rowCoord}`
+    return `${col}${row}`
 }
 
-export function getAdjacentCoords(coord) {
+export function isValidCoord(board, playerIndex, coord) {
+    return ['n', 'ne', 'e', 'se', 's', 'sw', 'w', 'nw'].some(
+        (direction) =>
+            scoringCoords(board, playerIndex, direction, coord).length > 0
+    )
+}
+
+function getAdjacentCoord(coord, direction) {
     const [col, row] = coord
 
     const colIndex = columns.indexOf(col)
     const rowIndex = rows.indexOf(Number(row))
 
-    const adjacent = {
-        n: getCoord(colIndex, rowIndex - 1),
-        ne: getCoord(colIndex + 1, rowIndex - 1),
-        e: getCoord(colIndex + 1, rowIndex),
-        se: getCoord(colIndex + 1, rowIndex + 1),
-        s: getCoord(colIndex, rowIndex + 1),
-        sw: getCoord(colIndex - 1, rowIndex + 1),
-        w: getCoord(colIndex - 1, rowIndex),
-        nw: getCoord(colIndex - 1, rowIndex - 1),
+    switch (direction) {
+        case 'n':
+            return getCoord(colIndex, rowIndex - 1)
+        case 'ne':
+            return getCoord(colIndex + 1, rowIndex - 1)
+        case 'e':
+            return getCoord(colIndex + 1, rowIndex)
+        case 'se':
+            return getCoord(colIndex + 1, rowIndex + 1)
+        case 's':
+            return getCoord(colIndex, rowIndex + 1)
+        case 'sw':
+            return getCoord(colIndex - 1, rowIndex + 1)
+        case 'w':
+            return getCoord(colIndex - 1, rowIndex)
+        case 'nw':
+            return getCoord(colIndex - 1, rowIndex - 1)
     }
-
-    return adjacent
 }
 
-export function isValidCoord(board, playerIndex, coord) {
-    const otherPlayerIndex = playerIndex === 0 ? 1 : 0
-    const adjacentCoords = getAdjacentCoords(coord)
-    return Object.values(adjacentCoords).some(
-        (adj) => board[adj] === otherPlayerIndex
+export function scoringCoords(
+    board,
+    currentPlayerIndex,
+    direction,
+    coord,
+    scores = []
+) {
+    const adjacentCoord = getAdjacentCoord(coord, direction)
+    const valueAtCoord = board[adjacentCoord]
+
+    if (adjacentCoord === null || valueAtCoord === undefined) {
+        return []
+    }
+    if (valueAtCoord === currentPlayerIndex) {
+        return scores
+    }
+
+    scores.push(adjacentCoord)
+    return scoringCoords(
+        board,
+        currentPlayerIndex,
+        direction,
+        adjacentCoord,
+        scores
     )
 }
