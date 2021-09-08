@@ -36,10 +36,19 @@ function getCoord(colIndex, rowIndex) {
     return `${col}${row}`
 }
 
-export function isValidCoord(board, playerIndex, coord) {
-    return ['n', 'ne', 'e', 'se', 's', 'sw', 'w', 'nw'].some(
-        (direction) =>
-            scoringCoords(board, playerIndex, direction, coord).length > 0
+export function getScoringCoords(board, playerIndex, coord) {
+    return ['n', 'ne', 'e', 'se', 's', 'sw', 'w', 'nw'].reduce(
+        (allScores, direction) => {
+            const scores = getScoresOnDirection(
+                board,
+                playerIndex,
+                direction,
+                coord
+            )
+
+            return [...allScores, ...scores]
+        },
+        []
     )
 }
 
@@ -69,7 +78,7 @@ function getAdjacentCoord(coord, direction) {
     }
 }
 
-export function scoringCoords(
+export function getScoresOnDirection(
     board,
     currentPlayerIndex,
     direction,
@@ -87,7 +96,7 @@ export function scoringCoords(
     }
 
     scores.push(adjacentCoord)
-    return scoringCoords(
+    return getScoresOnDirection(
         board,
         currentPlayerIndex,
         direction,

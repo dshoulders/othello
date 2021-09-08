@@ -1,6 +1,6 @@
 import { useEffect, useState } from '../hooks/lib.js'
 import { useFirebase, useRead } from '../hooks/providers/firebase.js'
-import { html, isValidCoord } from '../utils.js'
+import { html, getScoringCoords } from '../utils.js'
 import { disc } from './disc.js'
 import { square } from './square.js'
 
@@ -15,23 +15,35 @@ export function board({ registeredPlayers, currentPlayerId }) {
 
     const firebase = useFirebase()
 
-    async function onClick({ target: { id: coord } }) {
+    async function tryMove(coord) {
         const boardRef = firebase.database().ref('/board')
 
+        const playerIndex = registeredPlayers.findIndex(
+            (p) => p.uid === user.uid
+        )
+
+        const otherPlayerIndex = playerIndex === 0 ? 1 : 0
+        const otherPlayerId = registeredPlayers[otherPlayerIndex].uid
+
+        const boardSnapshot = await boardRef.get()
+        const boardState = boardSnapshot.val()
+
+        const scoringCoords = getScoringCoords(boardState, playerIndex, coord)
+
+        if (scoringCoords.length) {
+            scoringCoords.forEach((scoringCoord) => {
+                boardState[scoringCoord] = playerIndex
+            })
+            boardState[coord] = playerIndex
+            boardRef.set(boardState)
+
+            firebase.database().ref('/currentPlayerId').set(otherPlayerId)
+        }
+    }
+
+    async function onClick({ target: { id: coord } }) {
         if (user.uid === currentPlayerId) {
-            const playerIndex = registeredPlayers.findIndex(
-                (p) => p.uid === user.uid
-            )
-
-            const otherPlayerIndex = playerIndex === 0 ? 1 : 0
-            const otherPlayerId = registeredPlayers[otherPlayerIndex].uid
-
-            const boardSnapshot = await boardRef.get()
-
-            if (isValidCoord(boardSnapshot.val(), playerIndex, coord)) {
-                boardRef.child(coord).set(playerIndex)
-                firebase.database().ref('/currentPlayerId').set(otherPlayerId)
-            }
+            tryMove(coord)
         }
     }
 
