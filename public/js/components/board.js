@@ -1,6 +1,12 @@
 import { useEffect, useState } from '../hooks/lib.js'
-import { useFirebase, useRead } from '../hooks/providers/firebase.js'
-import { html, getScoringCoords } from '../utils.js'
+import { useFirebase } from '../hooks/providers/firebase.js'
+import {
+    useCurrentPlayer,
+    useOtherPlayer,
+    useRegisteredPlayers,
+    useBoard,
+} from '../hooks/utils.js'
+import { html, getScoringCoords, getPlayerIndex } from '../utils.js'
 import { disc } from './disc.js'
 import { square } from './square.js'
 
@@ -8,25 +14,17 @@ export const SQUARE_SIZE = 100
 export const columns = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
 export const rows = [1, 2, 3, 4, 5, 6, 7, 8]
 
-export function board({ registeredPlayers, currentPlayerId }) {
-    console.log('board')
-
+export function board() {
+    const currentPlayer = useCurrentPlayer()
+    const otherPlayer = useOtherPlayer()
+    const registeredPlayers = useRegisteredPlayers()
+    const [boardState, setBoard] = useBoard()
     const [user, setUser] = useState(null)
 
     const firebase = useFirebase()
 
     async function tryMove(coord) {
-        const boardRef = firebase.database().ref('/board')
-
-        const playerIndex = registeredPlayers.findIndex(
-            (p) => p.uid === user.uid
-        )
-
-        const otherPlayerIndex = playerIndex === 0 ? 1 : 0
-        const otherPlayerId = registeredPlayers[otherPlayerIndex].uid
-
-        const boardSnapshot = await boardRef.get()
-        const boardState = boardSnapshot.val()
+        const playerIndex = getPlayerIndex(registeredPlayers, user.uid)
 
         const scoringCoords = getScoringCoords(boardState, playerIndex, coord)
 
@@ -35,14 +33,14 @@ export function board({ registeredPlayers, currentPlayerId }) {
                 boardState[scoringCoord] = playerIndex
             })
             boardState[coord] = playerIndex
-            boardRef.set(boardState)
+            setBoard(boardState)
 
-            firebase.database().ref('/currentPlayerId').set(otherPlayerId)
+            firebase.database().ref('/currentPlayerId').set(otherPlayer.uid)
         }
     }
 
     async function onClick({ target: { id: coord } }) {
-        if (user.uid === currentPlayerId) {
+        if (user.uid === currentPlayer?.uid) {
             tryMove(coord)
         }
     }

@@ -1,8 +1,12 @@
 import { useState } from '../hooks/lib.js'
 import { useRead } from '../hooks/providers/firebase.js'
+import { useCurrentPlayer, useRegisteredPlayers } from '../hooks/utils.js'
 import { html } from '../utils.js'
 
-export function players({ registeredPlayers, currentPlayerId }) {
+export function players() {
+    const currentPlayer = useCurrentPlayer()
+    const registeredPlayers = useRegisteredPlayers()
+
     const [board, setBoard] = useState({})
 
     useRead('/board', (snapshot) => {
@@ -21,7 +25,7 @@ export function players({ registeredPlayers, currentPlayerId }) {
                 (player, index) =>
                     html`<li
                         class=${`${
-                            currentPlayerId === player.uid ? 'active' : ''
+                            currentPlayer?.uid === player.uid ? 'active' : ''
                         }`}
                     >
                         <img src=${player.avatar} />

@@ -1,19 +1,22 @@
-import { html, reset } from '../utils.js'
+import { html } from '../utils.js'
 import { players } from './players.js'
 import { board } from './board.js'
-import { useDb, useRead } from '../hooks/providers/firebase.js'
-import { useState } from '../hooks/lib.js'
+import { useDb } from '../hooks/providers/firebase.js'
+import {
+    useCurrentPlayer,
+    useRegisteredPlayers,
+    useReset,
+} from '../hooks/utils.js'
 
 export function app() {
-    const [registeredPlayers, setRegisteredPlayers] = useState([])
-    const [currentPlayerId, setCurrentPlayerId] = useState(null)
+    const registeredPlayers = useRegisteredPlayers()
+    const currentPlayer = useCurrentPlayer()
+    const reset = useReset()
 
     const showPlayButton =
-        registeredPlayers.length === 2 && currentPlayerId === null
+        registeredPlayers.length === 2 && currentPlayer === undefined
     const showResetButton =
-        registeredPlayers.length === 2 && currentPlayerId !== null
-
-    console.log('app')
+        registeredPlayers.length === 2 && currentPlayer !== undefined
 
     const db = useDb()
 
@@ -25,32 +28,11 @@ export function app() {
         reset()
     }
 
-    useRead('/players', (snapshot) => {
-        const val = snapshot.val()
-        const playersList = val
-            ? Object.entries(val).map(([key, val]) => ({
-                  uid: key,
-                  name: val,
-              }))
-            : []
-        setRegisteredPlayers(playersList)
-    })
-
-    useRead('/currentPlayerId', (snapshot) => {
-        setCurrentPlayerId(snapshot.val())
-    })
-
     return html`<div>
-        <${players}
-            registeredPlayers=${registeredPlayers}
-            currentPlayerId=${currentPlayerId}
-        />
+        <${players} />
         ${showPlayButton && html`<button onClick=${onPlayClick}>Play</button>`}
         ${showResetButton &&
         html`<button onClick=${onResetClick}>Reset</button>`}
-        <${board}
-            registeredPlayers=${registeredPlayers}
-            currentPlayerId=${currentPlayerId}
-        />
+        <${board} />
     </div>`
 }
