@@ -24,7 +24,7 @@ export function players() {
             ${registeredPlayers.map(
                 (player, index) =>
                     html`<li
-                        class=${`${
+                        class=${`player ${
                             currentPlayer?.uid === player.uid ? 'active' : ''
                         }`}
                     >
@@ -32,28 +32,7 @@ export function players() {
                         <span class="player-name"
                             >${player.name.split(' ')[0]}</span
                         >
-                        <div class="player-score">
-                            <span class="player-score-number"
-                                >${scores[index]}</span
-                            >
-                            <svg class="player-score-graphic" height="15">
-                                ${Array(scores[index])
-                                    .fill()
-                                    .map(
-                                        (_, scoreIndex) => html`
-                                            <rect
-                                                x=${scoreIndex * 10}
-                                                y=${0}
-                                                height=${15}
-                                                width=${4}
-                                                fill="white"
-                                                stroke="black"
-                                                stroke-width="1"
-                                            />
-                                        `
-                                    )}
-                            </svg>
-                        </div>
+                        <div class="player-score">${scores[index]}</div>
                     </li>`
             )}
         </ul>

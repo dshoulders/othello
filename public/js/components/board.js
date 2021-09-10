@@ -1,6 +1,7 @@
 import { useEffect, useState } from '../hooks/lib.js'
 import { useFirebase } from '../hooks/providers/firebase.js'
 import {
+    useCurrentUser,
     useCurrentPlayer,
     useOtherPlayer,
     useRegisteredPlayers,
@@ -19,7 +20,7 @@ export function board() {
     const otherPlayer = useOtherPlayer()
     const registeredPlayers = useRegisteredPlayers()
     const [boardState, setBoard] = useBoard()
-    const [user, setUser] = useState(null)
+    const user = useCurrentUser()
 
     const firebase = useFirebase()
 
@@ -45,15 +46,10 @@ export function board() {
         }
     }
 
-    useEffect(() => {
-        const unsubscribe = firebase.auth().onAuthStateChanged(setUser)
-        return unsubscribe
-    }, [])
-
     return html`
         <svg
             viewBox=${`0 0 ${8 * SQUARE_SIZE} ${8 * SQUARE_SIZE}`}
-            style="background: #295a2b;"
+            class="board"
             onClick=${onClick}
         >
             ${[1, 2, 3, 4, 5, 6, 7].map(

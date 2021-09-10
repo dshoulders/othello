@@ -72,3 +72,14 @@ export function useReset() {
         db.ref('/board').set(newBoard)
     }
 }
+
+export function useCurrentUser() {
+    const [user, setUser] = useState(null)
+
+    useEffect(() => {
+        const unsubscribe = firebase.auth().onAuthStateChanged(setUser)
+        return unsubscribe
+    }, [])
+
+    return user
+}

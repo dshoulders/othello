@@ -11,6 +11,8 @@ export { render, createContext }
 // Initialize htm with Preact
 export const html = htm.bind(h)
 
+const directons = ['n', 'ne', 'e', 'se', 's', 'sw', 'w', 'nw']
+
 function getCoord(colIndex, rowIndex) {
     const col = columns[colIndex]
     const row = rows[rowIndex]
@@ -23,19 +25,16 @@ function getCoord(colIndex, rowIndex) {
 }
 
 export function getScoringCoords(board, playerIndex, coord) {
-    return ['n', 'ne', 'e', 'se', 's', 'sw', 'w', 'nw'].reduce(
-        (allScores, direction) => {
-            const scores = getScoresOnDirection(
-                board,
-                playerIndex,
-                direction,
-                coord
-            )
+    return directons.reduce((allScores, direction) => {
+        const scores = getScoresOnDirection(
+            board,
+            playerIndex,
+            direction,
+            coord
+        )
 
-            return [...allScores, ...scores]
-        },
-        []
-    )
+        return [...allScores, ...scores]
+    }, [])
 }
 
 function getAdjacentCoord(coord, direction) {
@@ -93,4 +92,32 @@ export function getScoresOnDirection(
 
 export function getPlayerIndex(registeredPlayers, playerId) {
     return registeredPlayers.findIndex((p) => p.uid === playerId)
+}
+
+export function getValidCoords(board, currentPlayerIndex) {
+    const validCoords = []
+
+    columns.forEach((col) =>
+        rows.forEach((row) =>
+            directons.forEach((direction) => {
+                const coord = `${col}${row}`
+
+                if (board[coord] === 0 || board[coord] === 1) {
+                    return
+                }
+
+                const scores = getScoresOnDirection(
+                    board,
+                    currentPlayerIndex,
+                    direction,
+                    coord
+                )
+
+                if (scores.length > 0) {
+                    validCoords.push(coord)
+                }
+            })
+        )
+    )
+    return validCoords
 }

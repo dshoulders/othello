@@ -7,6 +7,7 @@ import {
     useRegisteredPlayers,
     useReset,
 } from '../hooks/utils.js'
+import passConfirmation from './passConfirmation.js'
 
 export function app() {
     const registeredPlayers = useRegisteredPlayers()
@@ -28,11 +29,19 @@ export function app() {
         reset()
     }
 
-    return html`<div>
-        <${players} />
-        ${showPlayButton && html`<button onClick=${onPlayClick}>Play</button>`}
-        ${showResetButton &&
-        html`<button onClick=${onResetClick}>Reset</button>`}
-        <${board} />
-    </div>`
+    return html`
+        <div>
+            <div class="text-box">
+                <h1>Othello</h1>
+                <h1>Othello</h1>
+            </div>
+            <${players} />
+            ${showPlayButton &&
+            html`<button onClick=${onPlayClick}>Play</button>`}
+            <${board} />
+            ${showResetButton &&
+            html`<button onClick=${onResetClick}>Reset</button>`}
+            <${passConfirmation} currentPlayer=${currentPlayer} />
+        </div>
+    `
 }
