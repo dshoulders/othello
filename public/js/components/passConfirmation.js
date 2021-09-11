@@ -11,12 +11,13 @@ const passConfirmation = ({ currentPlayer }) => {
     const user = useCurrentUser()
     const switchPlayer = useSwitchPlayer()
     const registeredPlayers = useRegisteredPlayers()
-    const board = useBoard()
+    const [board, setBoard] = useBoard()
 
     if (
         user === undefined ||
         currentPlayer === undefined ||
-        user.uid !== currentPlayer.uid
+        user.uid !== currentPlayer.uid ||
+        board === null
     ) {
         return null
     }
@@ -25,8 +26,8 @@ const passConfirmation = ({ currentPlayer }) => {
         registeredPlayers,
         currentPlayer.uid
     )
-    // const showPassModal = getValidCoords(board, currentPlayerIndex).length === 0
-    const showPassModal = false
+
+    const showPassModal = getValidCoords(board, currentPlayerIndex).length === 0
 
     if (showPassModal === false) {
         return null
