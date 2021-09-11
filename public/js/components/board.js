@@ -1,4 +1,3 @@
-import { useEffect, useState } from '../hooks/lib.js'
 import { useFirebase } from '../hooks/providers/firebase.js'
 import {
     useCurrentUser,
@@ -7,7 +6,12 @@ import {
     useRegisteredPlayers,
     useBoard,
 } from '../hooks/utils.js'
-import { html, getScoringCoords, getPlayerIndex } from '../utils.js'
+import {
+    html,
+    getScoringCoords,
+    getPlayerIndex,
+    isEmptyCoord,
+} from '../utils.js'
 import { disc } from './disc.js'
 import { square } from './square.js'
 
@@ -25,8 +29,11 @@ export function board() {
     const firebase = useFirebase()
 
     async function tryMove(coord) {
-        const playerIndex = getPlayerIndex(registeredPlayers, user.uid)
+        if (!isEmptyCoord(boardState, coord)) {
+            return
+        }
 
+        const playerIndex = getPlayerIndex(registeredPlayers, user.uid)
         const scoringCoords = getScoringCoords(boardState, playerIndex, coord)
 
         if (scoringCoords.length) {

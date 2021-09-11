@@ -27,7 +27,11 @@ const passConfirmation = ({ currentPlayer }) => {
         currentPlayer.uid
     )
 
-    const showPassModal = getValidCoords(board, currentPlayerIndex).length === 0
+    const otherPlayerIndex = currentPlayerIndex === 0 ? 1 : 0
+
+    const showPassModal =
+        getValidCoords(board, currentPlayerIndex).length === 0 &&
+        getValidCoords(board, otherPlayerIndex).length > 0
 
     if (showPassModal === false) {
         return null

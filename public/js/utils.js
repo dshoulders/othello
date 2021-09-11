@@ -24,6 +24,14 @@ function getCoord(colIndex, rowIndex) {
     return `${col}${row}`
 }
 
+export function isEmptyCoord(board, coord) {
+    return board[coord] === undefined
+}
+
+export function getScore(board, playerIndex) {
+    return Object.values(board).filter((value) => playerIndex === value).length
+}
+
 export function getScoringCoords(board, playerIndex, coord) {
     return directons.reduce((allScores, direction) => {
         const scores = getScoresOnDirection(

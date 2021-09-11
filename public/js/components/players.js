@@ -1,7 +1,7 @@
 import { useState } from '../hooks/lib.js'
 import { useRead } from '../hooks/providers/firebase.js'
 import { useCurrentPlayer, useRegisteredPlayers } from '../hooks/utils.js'
-import { html } from '../utils.js'
+import { html, getScore } from '../utils.js'
 
 export function players() {
     const currentPlayer = useCurrentPlayer()
@@ -12,12 +12,6 @@ export function players() {
     useRead('/board', (snapshot) => {
         setBoard(snapshot.val())
     })
-
-    const scores = registeredPlayers.map(
-        (_, index) =>
-            Object.values(board).filter((playerIndex) => playerIndex === index)
-                .length
-    )
 
     return html`
         <ul class="players">
@@ -32,7 +26,9 @@ export function players() {
                         <span class="player-name"
                             >${player.name.split(' ')[0]}</span
                         >
-                        <div class="player-score">${scores[index]}</div>
+                        <div class="player-score">
+                            ${getScore(board, index)}
+                        </div>
                     </li>`
             )}
         </ul>

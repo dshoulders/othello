@@ -8,6 +8,7 @@ import {
     useReset,
 } from '../hooks/utils.js'
 import passConfirmation from './passConfirmation.js'
+import winConfirmation from './winConfirmation.js'
 
 export function app() {
     const registeredPlayers = useRegisteredPlayers()
@@ -37,11 +38,16 @@ export function app() {
             </div>
             <${players} />
             ${showPlayButton &&
-            html`<button onClick=${onPlayClick}>Play</button>`}
+            html`<button class="board-play" onClick=${onPlayClick}>
+                Play
+            </button>`}
             <${board} />
             ${showResetButton &&
-            html`<button onClick=${onResetClick}>Reset</button>`}
+            html`<button class="board-reset" onClick=${onResetClick}>
+                Reset
+            </button>`}
             <${passConfirmation} currentPlayer=${currentPlayer} />
+            <${winConfirmation} currentPlayer=${currentPlayer} />
         </div>
     `
 }
