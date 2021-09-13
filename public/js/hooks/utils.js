@@ -5,14 +5,7 @@ export function useRegisteredPlayers() {
     const [registeredPlayers, setRegisteredPlayers] = useState([])
 
     useRead('/players', (snapshot) => {
-        const val = snapshot.val()
-        const playersList = val
-            ? Object.entries(val).map(([key, val]) => ({
-                  uid: key,
-                  name: val,
-              }))
-            : []
-        setRegisteredPlayers(playersList)
+        setRegisteredPlayers(snapshot.val() ?? [])
     })
 
     return registeredPlayers

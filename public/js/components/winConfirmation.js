@@ -28,6 +28,10 @@ const winConfirmation = ({ currentPlayer }) => {
         getValidCoords(board, currentPlayerIndex).length === 0 &&
         getValidCoords(board, otherPlayerIndex).length === 0
 
+    if (showWinModal === false) {
+        return null
+    }
+
     const winner = registeredPlayers
         .map((player, index) => {
             return {
@@ -47,10 +51,6 @@ const winConfirmation = ({ currentPlayer }) => {
         winner.uid === user.uid
             ? 'You win!'
             : `${winner.name.split(' ')[0]} wins!`
-
-    if (showWinModal === false) {
-        return null
-    }
 
     return html`
         <${modal} className="winner-confirmation">

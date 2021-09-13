@@ -19,10 +19,9 @@ function init({ rootNode, firebase }) {
             const playersRef = firebase.database().ref('/players')
             playersRef.get().then((snapshot) => {
                 if (snapshot.numChildren() < 2) {
-                    firebase
-                        .database()
-                        .ref(`/players/${user.uid}`)
-                        .set(user.displayName)
+                    const players = snapshot.val() ?? []
+                    players.push({ uid: user.uid, name: user.displayName })
+                    firebase.database().ref('/players').set(players)
                 }
             })
 

@@ -1,36 +1,51 @@
-import { useState } from '../hooks/lib.js'
-import { useRead } from '../hooks/providers/firebase.js'
-import { useCurrentPlayer, useRegisteredPlayers } from '../hooks/utils.js'
-import { html, getScore } from '../utils.js'
+import { useDb } from '../hooks/providers/firebase.js'
+import {
+    useBoard,
+    useCurrentPlayer,
+    useRegisteredPlayers,
+    useSwitchPlayer,
+} from '../hooks/utils.js'
+import { html } from '../utils.js'
+import { playerInfo } from './player.js'
 
 export function players() {
     const currentPlayer = useCurrentPlayer()
     const registeredPlayers = useRegisteredPlayers()
+    const [board] = useBoard()
+    const db = useDb()
 
-    const [board, setBoard] = useState({})
+    const showSwitchButton =
+        registeredPlayers.length === 2 && currentPlayer === undefined
 
-    useRead('/board', (snapshot) => {
-        setBoard(snapshot.val())
-    })
+    function switchPlayers() {
+        const playersRef = db.ref('/players')
+
+        playersRef.get().then((snapshot) => {
+            const playerList = snapshot.val()
+            playersRef.set(playerList.reverse())
+        })
+    }
+
+    if (!board || registeredPlayers.length < 2) {
+        return null
+    }
 
     return html`
-        <ul class="players">
-            ${registeredPlayers.map(
-                (player, index) =>
-                    html`<li
-                        class=${`player ${
-                            currentPlayer?.uid === player.uid ? 'active' : ''
-                        }`}
-                    >
-                        <img src=${player.avatar} />
-                        <span class="player-name"
-                            >${player.name.split(' ')[0]}</span
-                        >
-                        <div class="player-score">
-                            ${getScore(board, index)}
-                        </div>
-                    </li>`
-            )}
-        </ul>
+        <div class="players">
+            <${playerInfo}
+                board=${board}
+                player=${registeredPlayers[0]}
+                index=${0}
+                currentPlayer=${currentPlayer}
+            />
+            ${showSwitchButton &&
+            html`<button onClick=${switchPlayers}>Switch Players</button>`}
+            <${playerInfo}
+                board=${board}
+                player=${registeredPlayers[1]}
+                index=${1}
+                currentPlayer=${currentPlayer}
+            />
+        </div>
     `
 }
