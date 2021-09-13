@@ -161,3 +161,14 @@ h1:nth-child(2) {
 .winner-confirmation {
     text-align: center;
 }
+
+.disc {
+    transition: transform 150ms cubic-bezier(0.55, 0.055, 0.675, 0.19),
+        fill 150ms cubic-bezier(0.55, 0.055, 0.675, 0.19);
+    fill: black;
+}
+
+.disc.flipped {
+    transform: rotateY(180deg);
+    fill: white;
+}

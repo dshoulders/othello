@@ -16,11 +16,18 @@ export function disc({ col, row }) {
         return null
     }
 
-    return html` <circle
-        cx=${columns.findIndex((c) => c === col) * SQUARE_SIZE +
-        SQUARE_SIZE / 2}
-        cy=${(row - 1) * SQUARE_SIZE + SQUARE_SIZE / 2}
-        r=${(SQUARE_SIZE / 100) * 40}
+    const xOffset =
+        columns.findIndex((c) => c === col) * SQUARE_SIZE + SQUARE_SIZE / 2
+
+    const yOffset = (row - 1) * SQUARE_SIZE + SQUARE_SIZE / 2
+
+    return html` <ellipse
+        class=${`disc ${disc === 1 ? 'flipped' : ''}`}
+        cx=${xOffset}
+        cy=${yOffset}
+        rx=${(SQUARE_SIZE / 100) * 40}
+        ry=${(SQUARE_SIZE / 100) * 40}
         fill=${colour}
+        transform-origin=${`${xOffset} ${yOffset}`}
     />`
 }
