@@ -1,10 +1,11 @@
-import { useFirebase } from '../hooks/providers/firebase.js'
+import { useDb, useFirebase } from '../hooks/providers/firebase.js'
 import {
     useCurrentUser,
     useCurrentPlayer,
     useOtherPlayer,
     useRegisteredPlayers,
     useBoard,
+    useSwitchPlayer,
 } from '../hooks/utils.js'
 import {
     html,
@@ -25,8 +26,8 @@ export function board() {
     const registeredPlayers = useRegisteredPlayers()
     const [boardState, setBoard] = useBoard()
     const user = useCurrentUser()
-
-    const firebase = useFirebase()
+    const db = useDb()
+    const switchPlayer = useSwitchPlayer()
 
     async function tryMove(coord) {
         if (!isEmptyCoord(boardState, coord)) {
@@ -36,20 +37,38 @@ export function board() {
         const playerIndex = getPlayerIndex(registeredPlayers, user.uid)
         const scoringCoords = getScoringCoords(boardState, playerIndex, coord)
 
+        const newBoardState = { ...boardState }
+
         if (scoringCoords.length) {
             scoringCoords.forEach((scoringCoord) => {
-                boardState[scoringCoord] = playerIndex
+                newBoardState[scoringCoord] = playerIndex
             })
-            boardState[coord] = playerIndex
-            setBoard(boardState)
+            newBoardState[coord] = playerIndex
+            setBoard(newBoardState)
 
-            firebase.database().ref('/currentPlayerId').set(otherPlayer.uid)
+            db.ref('/lastCoord').set(coord)
+            db.ref('/lastBoardState').set(boardState)
+            db.ref('/currentPlayerId').set(otherPlayer.uid)
+        }
+    }
+
+    async function tryUndo(coord) {
+        const lastCoord = (await db.ref('/lastCoord').get()).val()
+        const lastBoardState = (await db.ref('/lastBoardState').get()).val()
+
+        if (coord === lastCoord && lastBoardState) {
+            setBoard(lastBoardState)
+            db.ref('/lastCoord').set(null)
+            db.ref('/lastBoardState').set(null)
+            switchPlayer()
         }
     }
 
     async function onClick({ target: { id: coord } }) {
         if (user.uid === currentPlayer?.uid) {
             tryMove(coord)
+        } else {
+            tryUndo(coord)
         }
     }
 
